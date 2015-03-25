@@ -1,0 +1,249 @@
+<html>
+<body>
+<head>
+<link rel="stylesheet" type="text/css" href="style.css" />
+<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="jquery.rest.js"></script>
+<style type="text/css">
+#wrap {
+	display: none;
+	opacity: 0.8;
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	padding: 16px;
+	background-color: rgba(1, 1, 1, 0.725);
+	z-index: 100;
+	overflow: auto;
+}
+
+#window {
+	width: 400px;
+	height: 400px;
+	margin: 50px auto;
+	display: none;
+	background: #fff;
+	z-index: 200;
+	position: fixed;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	padding: 16px;
+}
+
+.close {
+	margin-left: 364px;
+	margin-top: 4px;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+	function insertLogin(jsonForm) {
+
+		idLogin = parseInt(jsonForm.idLogin.value);
+		var name = jsonForm.name.value;
+		var email = jsonForm.email.value;
+		password = parseInt(jsonForm.pass.value);
+		var JavascriptObject = {
+			idLogin : idLogin,
+			name : name,
+			email : email,
+			password : password
+		};
+		var ValidJSON = JSON.stringify(JavascriptObject);
+
+		$.post("../H2TestProject/rest/act", {
+			json : ValidJSON
+		});
+		makeComet();
+	}
+
+	function makeComet() {
+		$.get("../H2TestProject/CometController").done(function(data) {
+			if (data == "change") {
+				showL();
+			}
+		});
+
+	}
+
+	function mainFu() {
+		makeComet();
+		showL();
+	}
+
+	function deleteLogin(deleteForm) {
+		var delIdLogin = deleteForm.delIdLogin.value;
+		$.post("../H2TestProject/rest/act/deletelogin", {
+			delIdLogin : delIdLogin
+		});
+		makeComet();
+
+	}
+
+	function showL() {
+		var url = "../H2TestProject/rest/act/getlogins";
+		var xrequest = new XMLHttpRequest();
+		xrequest.open("GET", url, false);
+		xrequest.send("");
+		var result = xrequest.responseText;
+		var newArr = [];
+		newArr = JSON.parse(result);
+		var stringHTML = "<table border=\"1\"><tr><td>Номер пользователя</td><td>Имя пользователя</td><td>E-mail пользователя</td><td>Пароль пользователя</td><td>Удаление</td><td>Редактирование</td><td>Редактирование 2</td></tr>";
+		while (newArr.length > 0) {
+			var login = newArr.pop();
+			stringHTML += "<tr><td>"
+					+ login.idLogin
+					+ "</td><td>"
+					+ login.name
+					+ "</td><td>"
+					+ login.email
+					+ "</td><td>"
+					+ login.password
+					+ "</td><td><input type=\"button\" name=\"idLoginDel\"  value=\"Delete\" onClick=\"deleteIdLogin("
+					+ login.idLogin
+					+ ")\">"
+					+ "</td><td><input type=\"button\" name=\"idLoginDel\"  value=\"Update\" onClick=\"updateIdLogin("
+					+ login.idLogin
+					+ ")\">"
+					+ "</td><td><input class=\"myButton\"  type=\"button\" value=\"Update2\" onclick=\"show('"
+					+ login.idLogin + "block')\" /></td></tr>";
+		}
+		stringHTML += ("</table></br>");
+		document.getElementById("a").innerHTML = stringHTML;
+
+	}
+
+	function updateLogin(updateFrom) {
+
+		idLogin = parseInt(updateFrom.idLogin.value);
+		var name = updateFrom.name.value;
+		var email = updateFrom.email.value;
+		password = parseInt(updateFrom.pass.value);
+		var JavascriptObject = {
+			idLogin : idLogin,
+			name : name,
+			email : email,
+			password : password
+		};
+		var ValidJSON = JSON.stringify(JavascriptObject);
+
+		$.post("../H2TestProject/rest/act/updatelogin", {
+			json : ValidJSON
+		});
+		makeComet();
+	}
+	function deleteIdLogin(id) {
+		if (confirm("Bы уверены, что хотите удалить этот элемент?")) {
+			var delIdLogin = id;
+			$.post("../H2TestProject/rest/act/deletelogin", {
+				delIdLogin : delIdLogin
+			});
+			makeComet();
+		} else {
+
+		}
+
+	}
+	function updateIdLogin(id) {
+		if (confirm("Bы уверены, что хотите обновить этот элемент?")) {
+
+			var url = "../H2TestProject/rest/act/getlogin/" + id;
+			var xrequest = new XMLHttpRequest();
+			xrequest.open("GET", url, false);
+			xrequest.send("");
+			var result = xrequest.responseText;
+			var user = JSON.parse(result);
+			var name = prompt('Имя', user.name);
+			var email = prompt('Eimail', user.email);
+			var pass = prompt('Password', user.password);
+			var JavascriptObject = {
+				idLogin : user.idLogin,
+				name : name,
+				email : email,
+				password : pass
+			};
+			var ValidJSON = JSON.stringify(JavascriptObject);
+			$.post("../H2TestProject/rest/act/updatelogin", {
+				json : ValidJSON
+			});
+			makeComet();
+
+		} else {
+		}
+	}
+
+	function show(state) {
+		var id = parseInt(state);
+		var stateSt = state.substring(1, 6);
+		
+		document.getElementById('window').style.display = stateSt;
+		document.getElementById('wrap').style.display = stateSt;
+		var url = "../H2TestProject/rest/act/getlogin/" + id;
+		var xrequest = new XMLHttpRequest();
+		xrequest.open("GET", url, false);
+		xrequest.send("");
+		var result = xrequest.responseText;
+		var user = JSON.parse(result);
+		var stHTML = "<form>ID: <input readonly=\"readonly\"  name=\"idLogin\" value=\""+user.idLogin+"\"/> <br /> Name: <input name=\"name\" value=\""+user.name+"\"/> <br />E-mail: <input name=\"email\" value=\""+user.email+"\" /> <br /> Password: <input name=\"pass\"  value=\""+user.password+"\"/><br /> <input type=button value=\"Отправить\"onClick=\"s(form)\"></form><input class=\"myButton\"  type=\"button\" value=\"Close\" onclick=\"show('1none')\"/>";
+		document.getElementById("window").innerHTML = stHTML;
+	}
+
+	function s(form) {
+		idLogin = parseInt(form.idLogin.value);
+		var name = form.name.value;
+		var email = form.email.value;
+		var password = parseInt(form.pass.value);
+		var JavascriptObject = {
+			idLogin : idLogin,
+			name : name,
+			email : email,
+			password : password
+		};
+		var ValidJSON = JSON.stringify(JavascriptObject);
+		$.post("../H2TestProject/rest/act/updatelogin", {
+			json : ValidJSON
+		});
+		makeComet();
+		show("1none");
+	}
+</script>
+</head>
+<body onload="mainFu()">
+
+	<!-- Задний прозрачный фон-->
+	<div onclick="show('none')" id="wrap"></div>
+	<!-- Само окно-->
+	<div id="window"></div>
+
+	<form name="jsonFrom" action="../H2TestProject/rest/act" method="POST"
+		onSubmit="return false">
+		ID: <input type="text"  required="required"   name="idLogin" /> <br /> Name: <input name="name"  required="required"/> <br />
+		E-mail: <input type="email" name="email" /> <br /> Password: <input name="pass" />
+		<br /> <input type=button value="Отправить"
+			onClick="insertLogin(jsonFrom)">
+	</form>
+	<p id="a"></p>
+
+	<form name="deleteForm" action="../H2TestProject/rest/act"
+		method="POST" onSubmit="return false">
+		ID: <input name="delIdLogin"  /> <br /> <input type=button
+			value="Удалить" onClick="deleteLogin(deleteForm)">
+	</form>
+
+
+
+
+	<form name="updateFrom" action="../H2TestProject/rest/act/updatelogin"
+		method="POST" onSubmit="return false">
+		ID: <input name="idLogin" /> <br /> Name: <input name="name" /> <br />
+		E-mail: <input name="email" /> <br /> Password: <input name="pass" />
+		<br /> <input type=button value="Отправить"
+			onClick="updateLogin(updateFrom)">
+	</form>
+
+</body>
+</html>

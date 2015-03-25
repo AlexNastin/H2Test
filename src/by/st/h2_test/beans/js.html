@@ -1,0 +1,82 @@
+<html>
+<body>
+<head>
+<script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="jquery.rest.js"></script>
+<script type="text/javascript">
+	function generateJson(jsonForm) {
+
+		idLogin = parseInt(jsonForm.idLogin.value);
+		var name = jsonForm.name.value;
+		var email = jsonForm.email.value;
+		password = parseInt(jsonForm.pass.value);
+		var JavascriptObject = {
+			idLogin : idLogin,
+			name : name,
+			email : email,
+			password : password
+		};
+		var ValidJSON = JSON.stringify(JavascriptObject);
+
+		$.post("../H2TestProject/rest/act", {
+			json : ValidJSON
+		}).done(function(data) {
+			if (data == "OK") {
+				showL();
+			} else {
+				alert("Insert Login problem!")
+			}
+		});
+	}
+
+	function makeComet() {
+		$.rComet({
+			url : "../H2TestProject/CometController",
+			name : "name",
+			success : function(data1) {
+				if (data1 != '') {
+				}
+				makeComet();
+			},
+			close : function(data) {
+				makeComet();
+			}
+		});
+
+	}
+
+	function showL() {
+		var url = "../H2TestProject/rest/act/getlogins";
+		var xrequest = new XMLHttpRequest();
+		xrequest.open("GET", url, false);
+		xrequest.send("");
+		var result = xrequest.responseText;
+		var newArr = [];
+		newArr = JSON.parse(result);
+		var stringHTML = "<table border=\"1\"><tr><td>Номер пользователя</td><td>Имя пользователя</td><td>E-mail пользователя</td><td>Пароль пользователя</td></tr>";
+		while (newArr.length > 0) {
+			var login = newArr.pop();
+			stringHTML += "<tr><td>" + login.idLogin + "</td><td>" + login.name
+					+ "</td><td>" + login.email + "</td><td>" + login.password
+					+ "</td></tr>";
+		}
+		stringHTML += ("</table></br>");
+
+		document.getElementById("a").innerHTML = stringHTML;
+	}
+</script>
+</head>
+<body onload="showL()">
+
+	<form name="jsonFrom" action="../H2TestProject/rest/act" method="POST"
+		onSubmit="return false">
+		ID: <input name="idLogin" /> <br /> Name: <input name="name" /> <br />
+		E-mail: <input name="email" /> <br /> Password: <input name="pass" />
+		<br /> <input type=button value="Отправить"
+			onClick="generateJson(jsonFrom)">
+	</form>
+	<p id="a"></p>
+	<input type=button value="Отправить" onClick="makeComet()">
+
+</body>
+</html>
