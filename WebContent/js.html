@@ -48,7 +48,10 @@
 </style>
 <script type="text/javascript">
 	function insertLogin(insertFrom) {
-
+			
+		
+		
+		
 		idLogin = parseInt(insertFrom.idLogin.value);
 		var name = insertFrom.name.value;
 		var email = insertFrom.email.value;
@@ -79,6 +82,7 @@
 	function mainFu() {
 		makeComet();
 		showL();
+		
 	}
 
 	function showL() {
@@ -86,7 +90,9 @@
 		var xrequest = new XMLHttpRequest();
 		xrequest.open("GET", url, false);
 		xrequest.send("");
+	
 		var result = xrequest.responseText;
+		
 		var newArr = [];
 		newArr = JSON.parse(result);
 		var stringHTML = "<table border=\"1\"><tr><td>Номер пользователя</td><td>Имя пользователя</td><td>E-mail пользователя</td><td>Пароль пользователя</td><td>Удаление</td><td>Редактирование</td></tr>";
@@ -108,7 +114,6 @@
 		}
 		stringHTML += ("</table></br>");
 		document.getElementById("a").innerHTML = stringHTML;
-
 	}
 
 	function deleteIdLogin(id) {
